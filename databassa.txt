@@ -1,0 +1,425 @@
+Dersdeki Register. User Database olan kodu tamamlamaq
+#include <iostream>
+
+#include <windows.h>
+
+#include <cassert>
+#define BOLDYELLOW  "\033[1m\033[33m"  
+#define CYAN    "\033[36m"  
+#define RED     "\033[31m" 
+#define WHITE "\033[37m"  
+using namespace std;
+
+
+class User {
+
+    string _username;
+
+    string _password;
+
+    string _name;
+
+    string _surname;
+
+public:
+    User() {
+
+    }
+
+    User(string username, string password, string name, string surname) {
+
+        Setusername(username);
+
+        Setpassword(password);
+
+        SetName(name);
+
+        Setsurname(surname);
+
+    }
+
+
+    User(User& other) {
+
+        this->SetName(other._name);
+
+        this->Setsurname(other._surname);
+
+        this->Setusername(other._username);
+
+        this->Setpassword(other._password);
+
+    }
+
+    string Getusername() {
+        return _username;
+    }
+
+    string Getname() {
+        return _name;
+    } 
+    
+    string Getsurname() {
+        return _surname;
+    }
+    
+    string Getpasword() {
+        return _password;
+    }
+
+
+    User& operator = (User& other) {
+        this->SetName(other._name);
+
+        this->Setsurname(other._surname);
+
+        this->Setusername(other._username);
+
+        this->Setpassword(other._password);
+        return *this;
+    }
+
+    void Setusername(string username) {
+
+        if (username.empty() == 0) {
+
+            if (username.size() > 3) {
+
+                if (username.front() > 64 && username.front() < 90)
+
+                    _username = username;
+
+                else
+
+                    assert(!"InvalidArgumentException");
+
+            }
+
+            else
+
+                assert(!"useername wronhg");
+
+        }
+
+        else
+
+            assert(!"useername empty");
+
+    }
+
+
+    void Setpassword(string pasw) {
+
+        if (pasw.empty() == 0) {
+
+            if (pasw.size() > 4) {
+
+                _password = pasw;
+
+            }
+
+            else
+
+                assert(!"password wronhg");
+
+        }
+
+        else
+
+            assert(!"password empty");
+
+    }
+
+    void SetName(string pasw) {
+
+        if (pasw.empty() == 0) {
+
+            if (pasw.size() > 4) {
+
+                _name = pasw;
+
+            }
+
+            else
+
+                assert(!"Name wronhg");
+
+        }
+
+        else
+
+            assert(!"Name empty");
+
+    }
+
+    void Setsurname(string pasw) {
+
+        if (pasw.empty() == 0) {
+
+            if (pasw.size() > 4) {
+
+                _surname = pasw;
+
+            }
+
+            else
+
+                assert(!"surname wronhg");
+
+        }
+
+        else
+
+            assert(!"surname empty");
+
+    }
+
+
+    void show() const {
+
+        cout<<CYAN << "username =>" << WHITE << _username << endl;
+
+        cout << CYAN << "password =>" << WHITE << _password << endl;
+
+        cout << CYAN << "name     =>" << WHITE << _name << endl;
+
+        cout << CYAN << "surname  =>"<<WHITE << _surname << endl;
+
+    }
+
+};
+
+class Database {
+
+    User** users;
+
+    int user_count = 0;
+
+public:
+    Database(){ User** users1 = new User * [user_count]; }
+
+   
+
+    bool usercontrol(string username) {
+
+        for (size_t i = 0; i < user_count; i++)
+        {
+            if (users[i]->Getusername() == username) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+
+    void addUser(User* user) {
+        if (usercontrol(user->Getusername())) {
+            User** users1 = new User * [user_count + 1]; 
+
+                for (size_t i = 0; i < user_count; i++) 
+                {
+                    users1[i] = users[i]; 
+                }
+            users1[user_count] = user; 
+                 user_count += 1;
+
+                delete[] users; 
+                users = users1; 
+
+
+        }
+        else
+            assert(!"this account is exist , please choose another name ");
+    }
+
+    User& getUserByUsername(string username) {
+        for (size_t i = 0; i < user_count; i++)
+        {
+            if (username == users[i]->Getusername()) {
+                return *users[i];
+                break;
+        }
+
+        }
+    }
+
+    void updateUser( User& olduser, User& newuser) {
+        olduser = newuser ;
+    }
+
+
+    void Printusers() {
+
+        cout <<RED<< "----------------------" << endl;
+        cout << "Userss"<<WHITE  << endl;
+
+        for (size_t i = 0; i < user_count; i++)
+        {
+            users[i]->show(); 
+            cout << endl;
+        }
+
+        cout << endl;
+        cout << endl;
+    }
+    int Getusercount(){ return user_count; }
+
+    ~Database() {
+
+        for (size_t i = 0; i < user_count; i++)
+        {
+            delete users[i];
+        }
+        delete [] users;
+    }
+};
+
+class Registration {
+
+    Database _database;
+
+public:
+
+    Registration(const Database& database) {
+
+        _database = database;
+
+    }
+
+
+    //eger bu username istifadechi yoxdursa error atsin
+
+    //eger username varsa amma password yanlishdirsa error atsin
+
+    void signIn(string username, string password) {
+        bool a = false;
+        for (size_t i = 0; i < _database.Getusercount(); i++)
+        {
+            if (_database.getUserByUsername(username).Getusername() == username) {
+                a = 1;
+                break;
+            }
+        }
+
+        if (a) {
+
+            for (size_t i = 0; i < _database.Getusercount(); i++)
+            {
+                if (_database.getUserByUsername(username).Getpasword() == password) {
+                    cout << "daxil olduz" << endl;
+                    return;
+                }
+            }
+
+            assert(!"wrong password");
+            return;
+        }
+
+        assert(!"This name is doesnt exist!!");
+    }
+
+
+
+    
+
+    void signUp(string username, string password, string name, string surname) {
+        _database.addUser(new User(username, password, name, surname));
+
+    }
+    void Print() {
+        _database.Printusers();
+    }
+
+};
+
+
+class System {
+
+public:
+
+    static void Control() {
+
+        Database db;
+
+        Registration twitter(db);
+
+        while (true) {
+
+            cout<<BOLDYELLOW << R"(                       // 1. All users
+
+                       // 2. Sign in
+
+                      // 3. Sign upW
+
+                     // 0. Exit)"<<WHITE << endl;
+            int a;
+            cout<<RED << "Chosse the variant "<<WHITE;
+            cin >> a;
+            Sleep(1000);
+            system("cls");
+            if (a == 1) {
+                
+                twitter.Print();
+                Sleep(1500);
+                system("cls");
+            }
+
+            // 1. All users
+
+
+            else if (a == 2) {
+
+                string username;
+                string password;
+
+                cout<<RED << "Enter username " << WHITE;
+                cin >> username;
+                cout << RED << "enter password " << WHITE;
+                cin >> password;
+                twitter.signIn(username,password); 
+                Sleep(1000);
+                system("cls");
+                // 2. Sign in
+            }
+
+            else if (a == 3) {
+                string username;
+                string password;
+                string name;
+                string surname;
+                cout << RED << "Enter username " << WHITE;
+                cin >> username;
+                cout << RED << "Enter surname " << WHITE;
+                cin >> surname;
+                cout << RED << "enter name " << WHITE;
+                cin >> name;
+                cout << RED << "enter password " << WHITE;
+                cin >> password;
+
+                twitter.signUp(username, password, name, surname);
+                // 3. Sign up
+                Sleep(1000);
+                system("cls");
+
+            }
+
+            else if (a == 0) {
+                Sleep(500);
+                system("cls");
+                cout << "End" << endl;
+                break;
+            }
+            // 0. Exit
+
+        }
+    }
+
+};
+
+void main() {
+
+    System::Control();
+
+    system("pause");
+
+}
